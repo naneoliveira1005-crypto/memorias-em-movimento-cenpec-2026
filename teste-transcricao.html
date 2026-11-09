@@ -58,6 +58,8 @@ a{color:var(--verde2);font-weight:700}
 <label class="checklabel"><input type="checkbox" id="consent"><span>Confirmo que todas as pessoas que participarão deste teste foram informadas sobre a captação do áudio e o reconhecimento de fala e autorizaram a realização da experiência.</span></label>
 <div class="row"><button id="start" type="button">Iniciar teste de transcrição</button><button id="stop" class="danger" disabled type="button">Encerrar e preparar os arquivos</button><button id="listen" class="secondary" disabled type="button">Não ouço o Meet: ativar áudio</button></div>
 <div class="status" id="status" role="status" aria-live="polite">Aguardando início. Nenhuma captura está ativa.</div>
+<div class="status" id="alertaAudio" role="status" aria-live="polite" style="background:#fff8ec;border-color:#d5b778;display:none"><strong>Atenção ao áudio do Meet:</strong> <span id="alertaAudioTexto"></span></div>
+<p class="note">Durante o teste, observe a barrinha do Meet sempre que uma colega estiver falando. O aviso de silêncio não distingue uma pausa normal de uma falha: ele informa apenas que nenhum som chegou à captura.</p>
 <div class="row" style="margin-top:14px"><div class="metric"><strong>Áudio das colegas no Meet</strong><span id="tabstatus">Não conectado</span><div class="meter"><div id="tabmeter"></div></div></div><div class="metric"><strong>Microfone local</strong><span id="micstatus">Não conectado</span><div class="meter"><div id="micmeter"></div></div></div><div class="metric"><strong>Reconhecimento de fala</strong><span id="speechstatus">Aguardando</span></div></div>
 </section>
 <section class="panel">
@@ -77,7 +79,7 @@ a{color:var(--verde2);font-weight:700}
 (function(){
 "use strict";
 var $=function(id){return document.getElementById(id)};
-var displayStream=null,micStream=null,context=null,tabSource=null,micSource=null,mixed=null,recorder=null,recognition=null,active=false,restartTimer=null,animation=0,tabAnalyser=null,micAnalyser=null,monitor=false,sessionId="",chunks=[],writeChain=Promise.resolve(),recordedMime="audio/webm",recognitionFailures=0;
+var displayStream=null,micStream=null,context=null,tabSource=null,micSource=null,mixed=null,recorder=null,recognition=null,active=false,restartTimer=null,animation=0,tabAnalyser=null,micAnalyser=null,monitor=false,sessionId="",lastSignalAt=0,lastWarnAt=0,chunks=[],writeChain=Promise.resolve(),recordedMime="audio/webm",recognitionFailures=0;
 var dbPromise=null,sequence=0;
 function status(s){$("status").textContent=s}
 function speechStatus(s){$("speechstatus").textContent=s}
@@ -87,8 +89,14 @@ function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise(function(r
 function saveChunk(blob){return openDb().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction("pedaços","readwrite");tx.objectStore("pedaços").put({id:sessionId+"-"+String(sequence++).padStart(5,"0"),sessao:sessionId,blob:blob});tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error)}})})}
 function readChunks(sid){return openDb().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction("pedaços","readonly");var q=tx.objectStore("pedaços").index("sessao").getAll(sid);q.onsuccess=function(){resolve(q.result.sort(function(a,b){return a.id.localeCompare(b.id)}).map(function(x){return x.blob}))};q.onerror=function(){reject(q.error)}})})}
 function clearMeters(){$("tabmeter").style.width="0%";$("micmeter").style.width="0%"}
-function paintMeter(analyser,id){if(!analyser){$(id).style.width="0%";return}var b=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(b);var sum=0;for(var i=0;i<b.length;i++){var v=(b[i]-128)/128;sum+=v*v}var rms=Math.sqrt(sum/b.length);$(id).style.width=Math.min(100,Math.round(rms*500))+"%"}
-function meterLoop(){if(!active)return;paintMeter(tabAnalyser,"tabmeter");paintMeter(micAnalyser,"micmeter");animation=requestAnimationFrame(meterLoop)}
+function paintMeter(analyser,id){if(!analyser){$(id).style.width="0%";return}var b=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(b);var sum=0;for(var i=0;i<b.length;i++){var v=(b[i]-128)/128;sum+=v*v}var rms=Math.sqrt(sum/b.length);$(id).style.width=Math.min(100,Math.round(rms*500))+"%";return rms}
+function meterLoop(){if(!active)return;
+var meetRms=paintMeter(tabAnalyser,"tabmeter");
+paintMeter(micAnalyser,"micmeter");
+var now=Date.now();
+if(meetRms>0.0004){lastSignalAt=now;if($("alertaAudio").style.display!=="none"){$("alertaAudio").style.display="none";$("alertaAudioTexto").textContent=""}}
+else if(now-lastSignalAt>12000&&now-lastWarnAt>800){lastWarnAt=now;$("alertaAudio").style.display="block";$("alertaAudioTexto").textContent="Nenhum som chega da guia do Meet há "+Math.floor((now-lastSignalAt)/1000)+" segundos. Se alguém estiver falando, confira a guia compartilhada, a opção Compartilhar áudio da guia e o volume da reunião."}
+animation=requestAnimationFrame(meterLoop)}
 function saveText(){try{localStorage.setItem("cenpec-texto-grupo-"+$("grupo").value,JSON.stringify({texto:$("transcript").value,sessao:sessionId,data:new Date().toISOString()}))}catch(e){}}
 function appendText(t){if(!t.trim())return;var mark=new Date().toLocaleTimeString("pt-BR");$("transcript").value+=($("transcript").value.trim()?"\n":"")+"["+mark+"] "+t.trim();$("transcript").scrollTop=$("transcript").scrollHeight;saveText()}
 function stopRecognition(){clearTimeout(restartTimer);if(recognition){try{recognition.onend=null;recognition.abort()}catch(e){}recognition=null}}
@@ -119,7 +127,7 @@ context=new (window.AudioContext||window.webkitAudioContext)();await context.res
 tabSource=context.createMediaStreamSource(new MediaStream([tabTrack]));tabSource.connect(mixed);tabAnalyser=context.createAnalyser();tabAnalyser.fftSize=1024;tabSource.connect(tabAnalyser);
 if(micStream&&micStream.getAudioTracks().length){micSource=context.createMediaStreamSource(micStream);micSource.connect(mixed);micAnalyser=context.createAnalyser();micAnalyser.fftSize=1024;micSource.connect(micAnalyser);$("micstatus").textContent="Conectado"}else{$("micstatus").textContent=$("soMeet").checked?"Desligado neste diagnóstico":"Sem acesso; somente vozes do Meet"}
 $("tabstatus").textContent="Conectado — compartilhe e peça uma fala de teste";
-sessionId="g"+$("grupo").value+"-"+Date.now();sequence=0;chunks=[];writeChain=Promise.resolve();recognitionFailures=0;
+sessionId="g"+$("grupo").value+"-"+Date.now();sequence=0;chunks=[];writeChain=Promise.resolve();recognitionFailures=0;lastSignalAt=Date.now();lastWarnAt=0;$("alertaAudio").style.display="none";
 try{localStorage.setItem("cenpec-ultima-sessao-grupo-"+$("grupo").value,sessionId)}catch(e){}
 if(typeof MediaRecorder!=="undefined"){
 recordedMime=MediaRecorder.isTypeSupported("audio/webm;codecs=opus")?"audio/webm;codecs=opus":"audio/webm";
@@ -141,7 +149,7 @@ if(recorder&&recorder.state!=="inactive"){
 await new Promise(function(resolve){recorder.addEventListener("stop",resolve,{once:true});try{recorder.stop()}catch(e){resolve()}})
 }
 try{await writeChain}catch(e){}
-recorder=null;stopTracks();$("start").disabled=false;$("grupo").disabled=false;$("soMeet").disabled=false;$("downloadAudio").disabled=chunks.length===0;saveText();
+recorder=null;stopTracks();$("alertaAudio").style.display="none";$("start").disabled=false;$("grupo").disabled=false;$("soMeet").disabled=false;$("downloadAudio").disabled=chunks.length===0;saveText();
 speechStatus("Teste encerrado");$("tabstatus").textContent="Encerrado";$("micstatus").textContent="Encerrado";
 status("Teste encerrado. Baixe a transcrição e a gravação. Confira se a fala remota e a local estão presentes.");
 }
