@@ -53,6 +53,8 @@ a{color:var(--verde2);font-weight:700}
 <section class="panel">
 <h2>Iniciar a experiência</h2>
 <div class="row"><label for="grupo">Grupo:</label><select id="grupo"><option value="1">Grupo 1 — Identidade</option><option value="2">Grupo 2 — Rotina</option><option value="3">Grupo 3 — Leitura da Escola</option><option value="4">Grupo 4 — Escolhas</option><option value="5">Grupo 5 — Intervenção</option></select></div>
+<label class="checklabel"><input type="checkbox" id="soMeet" checked><span><strong>Diagnóstico: gravar somente o áudio do Google Meet (recomendado)</strong>. Deixe marcado neste teste: assim a televisão e outras vozes perto do computador não entram pela captação do microfone local. Desmarque apenas para um teste posterior de áudio combinado.</span></label>
+<p class="warning"><strong>Para testar:</strong> a outra participante deve estar longe do computador, mas falar perto do microfone do próprio celular. Selecione a guia do Meet e mantenha ligado “Compartilhar também o áudio da guia”. Enquanto ela fala, observe se a barra <strong>“Áudio das colegas no Meet”</strong> se movimenta. Se não se movimentar, a guia não está fornecendo áudio aproveitável.</p>
 <label class="checklabel"><input type="checkbox" id="consent"><span>Confirmo que todas as pessoas que participarão deste teste foram informadas sobre a captação do áudio e o reconhecimento de fala e autorizaram a realização da experiência.</span></label>
 <div class="row"><button id="start" type="button">Iniciar teste de transcrição</button><button id="stop" class="danger" disabled type="button">Encerrar e preparar os arquivos</button><button id="listen" class="secondary" disabled type="button">Não ouço o Meet: ativar áudio</button></div>
 <div class="status" id="status" role="status" aria-live="polite">Aguardando início. Nenhuma captura está ativa.</div>
@@ -112,10 +114,10 @@ try{
 displayStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true,preferCurrentTab:false,selfBrowserSurface:"exclude",surfaceSwitching:"include",systemAudio:"include"});
 var tabTrack=displayStream.getAudioTracks()[0];
 if(!tabTrack)throw new Error("Não veio áudio da guia. Encerre e repita escolhendo a guia do Meet com Compartilhar áudio ativado.");
-try{micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(err){micStream=null}
+if(!$("soMeet").checked){try{micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(err){micStream=null}}else{micStream=null}
 context=new (window.AudioContext||window.webkitAudioContext)();await context.resume();mixed=context.createMediaStreamDestination();
 tabSource=context.createMediaStreamSource(new MediaStream([tabTrack]));tabSource.connect(mixed);tabAnalyser=context.createAnalyser();tabAnalyser.fftSize=1024;tabSource.connect(tabAnalyser);
-if(micStream&&micStream.getAudioTracks().length){micSource=context.createMediaStreamSource(micStream);micSource.connect(mixed);micAnalyser=context.createAnalyser();micAnalyser.fftSize=1024;micSource.connect(micAnalyser);$("micstatus").textContent="Conectado"}else{$("micstatus").textContent="Sem acesso; apenas vozes do Meet"}
+if(micStream&&micStream.getAudioTracks().length){micSource=context.createMediaStreamSource(micStream);micSource.connect(mixed);micAnalyser=context.createAnalyser();micAnalyser.fftSize=1024;micSource.connect(micAnalyser);$("micstatus").textContent="Conectado"}else{$("micstatus").textContent=$("soMeet").checked?"Desligado neste diagnóstico":"Sem acesso; somente vozes do Meet"}
 $("tabstatus").textContent="Conectado — compartilhe e peça uma fala de teste";
 sessionId="g"+$("grupo").value+"-"+Date.now();sequence=0;chunks=[];writeChain=Promise.resolve();recognitionFailures=0;
 try{localStorage.setItem("cenpec-ultima-sessao-grupo-"+$("grupo").value,sessionId)}catch(e){}
@@ -128,9 +130,9 @@ recorder.onerror=function(e){status("Problema na gravação: "+(e.error&&e.error
 recorder.start(5000)
 }else{$("saveinfo").textContent="Gravação indisponível no navegador atual; experimente o Chrome."}
 active=true;displayStream.getVideoTracks().forEach(function(t){t.onended=function(){if(active){status("Compartilhamento da guia encerrado. Finalizando o teste...");stop()}}});
-$("grupo").disabled=true;$("stop").disabled=false;$("listen").disabled=false;$("downloadAudio").disabled=true;
-startRecognition(mixed.stream.getAudioTracks()[0]);meterLoop();status("Teste em andamento. Aguarde uma fala local e outra fala de uma colega pelo Meet. Ao terminar, clique em Encerrar.");
-}catch(e){status("Teste não iniciado: "+e.message);stopRecognition();stopTracks();$("start").disabled=false;$("grupo").disabled=false}
+$("grupo").disabled=true;$("soMeet").disabled=true;$("stop").disabled=false;$("listen").disabled=false;$("downloadAudio").disabled=true;
+startRecognition(mixed.stream.getAudioTracks()[0]);meterLoop();status($("soMeet").checked?"Teste somente Meet em andamento. Fique em silêncio e peça à colega distante que fale perto do próprio celular. Observe a barra de áudio do Meet.":"Teste de áudio combinado em andamento. Aguarde uma fala local e outra pelo Meet.");
+}catch(e){status("Teste não iniciado: "+e.message);stopRecognition();stopTracks();$("start").disabled=false;$("grupo").disabled=false;$("soMeet").disabled=false}
 }
 async function stop(){
 if(!active)return;active=false;cancelAnimationFrame(animation);clearTimeout(restartTimer);stopRecognition();$("partial").textContent="";$("stop").disabled=true;
@@ -139,7 +141,7 @@ if(recorder&&recorder.state!=="inactive"){
 await new Promise(function(resolve){recorder.addEventListener("stop",resolve,{once:true});try{recorder.stop()}catch(e){resolve()}})
 }
 try{await writeChain}catch(e){}
-recorder=null;stopTracks();$("start").disabled=false;$("grupo").disabled=false;$("downloadAudio").disabled=chunks.length===0;saveText();
+recorder=null;stopTracks();$("start").disabled=false;$("grupo").disabled=false;$("soMeet").disabled=false;$("downloadAudio").disabled=chunks.length===0;saveText();
 speechStatus("Teste encerrado");$("tabstatus").textContent="Encerrado";$("micstatus").textContent="Encerrado";
 status("Teste encerrado. Baixe a transcrição e a gravação. Confira se a fala remota e a local estão presentes.");
 }
