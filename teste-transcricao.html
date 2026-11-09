@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teste de Transcrição — Coordenação Pedagógica em Movimento</title>
+<style>
+:root{--verde:#164a37;--verde2:#235f48;--dourado:#c6a35c;--fundo:#f3f6f3;--texto:#203c30}
+*{box-sizing:border-box}body{margin:0;background:var(--fundo);color:var(--texto);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+header{background:var(--verde);color:#fff;padding:24px max(20px,calc((100vw - 1040px)/2));border-bottom:5px solid var(--dourado)}
+header p{margin:4px 0;font-size:14px;color:#e0eadf}h1{font:italic 700 clamp(24px,3vw,36px) Georgia,serif;margin:6px 0 8px}
+main{max-width:1040px;margin:24px auto 65px;padding:0 18px}
+.panel{background:#fff;border:1px solid #dbe5dd;border-radius:15px;padding:24px;margin-bottom:19px;box-shadow:0 4px 16px #123c2310}
+h2{font-size:19px;color:var(--verde);margin:0 0 12px}h3{font-size:16px;color:var(--verde);margin:14px 0 8px}
+p{margin:8px 0 12px}.steps{padding-left:22px;margin:9px 0}.steps li{margin-bottom:7px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+label{font-weight:700}.checklabel{display:flex;align-items:flex-start;gap:8px;font-weight:normal;margin:20px 0}
+.checklabel input{margin-top:5px}
+select,button,textarea{font:inherit}select{padding:10px;border:1px solid #90aa99;border-radius:7px;background:white;min-width:210px}
+button,.link{border:0;border-radius:9px;padding:12px 18px;font-weight:700;background:var(--verde);color:#fff;cursor:pointer}
+button.secondary{background:#e8efe9;color:var(--verde);border:1px solid #a7bcad}
+button.danger{background:#9b3f35}button:disabled{opacity:.45;cursor:not-allowed}
+button:hover:not(:disabled){filter:brightness(1.08)}
+small,.hint{color:#53695a}.warning{border-left:4px solid #be9449;padding:10px 14px;background:#fbf7ed}
+.status{padding:14px;background:#edf3ed;border-radius:9px;border:1px solid #cbd9cd;margin-top:14px}
+.metric{background:#f3f6f3;border-radius:10px;padding:12px 16px;flex:1;min-width:190px}
+.metric strong{display:block;font-size:13px}.metric span{font-size:14px}
+.meter{height:9px;background:#dbe5dd;border-radius:20px;overflow:hidden;margin-top:9px}
+.meter>div{height:100%;width:0;background:var(--dourado);transition:width .13s}
+textarea{display:block;width:100%;min-height:260px;resize:vertical;border:1px solid #bdcfc0;border-radius:9px;padding:14px;color:#203c30;background:#fbfdfb}
+#partial{min-height:24px;font-style:italic;color:#718076}
+.actions{margin-top:16px}.note{font-size:13px;color:#53695a}
+a{color:var(--verde2);font-weight:700}
+@media(max-width:600px){.panel{padding:18px}.row button{width:100%}}
+</style>
+</head>
+<body>
+<header><p>CMOC · CENPEC · PROJETO DESENVOLVIMENTO ESCOLAR</p><h1>Teste de transcrição dos grupos</h1><p>Coordenação Pedagógica em Movimento · Barrocas e Santaluz · 2026</p></header>
+<main>
+<section class="panel">
+<h2>Experiência-piloto · Uma sala de cada vez</h2>
+<p>Esta página é um <strong>teste</strong>. Vamos verificar se o computador consegue captar a própria voz e o áudio das colegas na sala simultânea do Google Meet. Somente depois dessa verificação decidiremos sobre o uso nos cinco grupos.</p>
+<ol class="steps">
+<li>Abra o <strong>Google Meet no Chrome do computador</strong>. Deixe esta página aberta em outra guia do mesmo navegador.</li>
+<li>Converse com as colegas sobre a gravação e confirme a <strong>autorização de todas</strong> antes de começar.</li>
+<li>Escolha o grupo, marque o consentimento e clique em <strong>Iniciar teste</strong>.</li>
+<li>Na janela do Chrome, escolha <strong>a guia do Google Meet</strong>, marque <strong>“Compartilhar áudio da guia”</strong> e confirme. Não selecione esta página.</li>
+<li>Permita o acesso ao microfone quando solicitado. Uma pessoa fala pelo microfone local e outra responde pelo Meet. Observem os indicadores de áudio e o texto.</li>
+<li>Finalize o teste e use <strong>Baixar transcrição</strong> e <strong>Baixar gravação de áudio</strong>. Confiram se as duas vozes aparecem no registro.</li>
+</ol>
+<p class="warning"><strong>Importante:</strong> o navegador pode usar um serviço externo para reconhecer a fala e gerar texto. O aplicativo não envia gravações para um banco de dados próprio: o áudio é guardado temporariamente neste navegador para recuperação e precisa ser baixado ao final. Este piloto não identifica automaticamente quem falou e não garante uma transcrição sem falhas.</p>
+</section>
+<section class="panel">
+<h2>Iniciar a experiência</h2>
+<div class="row"><label for="grupo">Grupo:</label><select id="grupo"><option value="1">Grupo 1 — Identidade</option><option value="2">Grupo 2 — Rotina</option><option value="3">Grupo 3 — Leitura da Escola</option><option value="4">Grupo 4 — Escolhas</option><option value="5">Grupo 5 — Intervenção</option></select></div>
+<label class="checklabel"><input type="checkbox" id="consent"><span>Confirmo que todas as pessoas que participarão deste teste foram informadas sobre a captação do áudio e o reconhecimento de fala e autorizaram a realização da experiência.</span></label>
+<div class="row"><button id="start" type="button">Iniciar teste de transcrição</button><button id="stop" class="danger" disabled type="button">Encerrar e preparar os arquivos</button><button id="listen" class="secondary" disabled type="button">Não ouço o Meet: ativar áudio</button></div>
+<div class="status" id="status" role="status" aria-live="polite">Aguardando início. Nenhuma captura está ativa.</div>
+<div class="row" style="margin-top:14px"><div class="metric"><strong>Áudio das colegas no Meet</strong><span id="tabstatus">Não conectado</span><div class="meter"><div id="tabmeter"></div></div></div><div class="metric"><strong>Microfone local</strong><span id="micstatus">Não conectado</span><div class="meter"><div id="micmeter"></div></div></div><div class="metric"><strong>Reconhecimento de fala</strong><span id="speechstatus">Aguardando</span></div></div>
+</section>
+<section class="panel">
+<h2>Texto reconhecido</h2>
+<p class="hint">Os trechos finais aparecem abaixo com o horário. Você pode corrigir o texto antes de baixá-lo. Uma fala que não apareça aqui não foi transcrita; confira também a gravação.</p>
+<textarea id="transcript" aria-label="Texto transcrito" placeholder="O texto começará a aparecer após o reconhecimento de fala."></textarea>
+<div id="partial" aria-live="polite"></div>
+<div class="row actions"><button id="downloadText" class="secondary" type="button">Baixar transcrição (.txt)</button><button id="downloadAudio" class="secondary" type="button" disabled>Baixar gravação de áudio (.webm)</button><button id="recover" class="secondary" type="button">Recuperar gravação anterior deste grupo</button></div>
+<p class="note" id="saveinfo">Durante a gravação, fragmentos de áudio são guardados neste navegador a cada poucos segundos. Não feche esta página durante a experiência. O arquivo só estará protegido fora do navegador depois que você baixá-lo.</p>
+</section>
+<section class="panel"><h2>O que vamos considerar no teste</h2>
+<p><strong>Resultado esperado:</strong> a gravação deve conter a fala da pessoa que está no computador e a fala de outra participante pelo Meet. O texto reconhecido também deve registrar as duas falas com qualidade suficiente para uma leitura posterior.</p>
+<p><strong>Se somente o microfone aparecer:</strong> a seleção da guia, o compartilhamento do áudio ou o suporte do navegador precisam ser revistos. <strong>Se houver gravação das duas vozes, mas o texto falhar:</strong> a captação funcionou, porém a transcrição automática ainda não está validada.</p>
+<p><a href="percurso.html">Voltar à plataforma formativa</a></p></section>
+</main>
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var displayStream=null,micStream=null,context=null,tabSource=null,micSource=null,mixed=null,recorder=null,recognition=null,active=false,restartTimer=null,animation=0,tabAnalyser=null,micAnalyser=null,monitor=false,sessionId="",chunks=[],writeChain=Promise.resolve(),recordedMime="audio/webm",recognitionFailures=0;
+var dbPromise=null,sequence=0;
+function status(s){$("status").textContent=s}
+function speechStatus(s){$("speechstatus").textContent=s}
+function safeName(){return "grupo-"+$("grupo").value+"-"+new Date().toISOString().slice(0,19).replace(/[:T]/g,"-")}
+function download(blob,name){var u=URL.createObjectURL(blob);var a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},30000)}
+function openDb(){if(dbPromise)return dbPromise;dbPromise=new Promise(function(resolve,reject){var req=indexedDB.open("cenpec-teste-transcricao-v1",1);req.onupgradeneeded=function(){var store=req.result.createObjectStore("pedaços",{keyPath:"id"});store.createIndex("sessao","sessao",{unique:false})};req.onsuccess=function(){resolve(req.result)};req.onerror=function(){reject(req.error)}});return dbPromise}
+function saveChunk(blob){return openDb().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction("pedaços","readwrite");tx.objectStore("pedaços").put({id:sessionId+"-"+String(sequence++).padStart(5,"0"),sessao:sessionId,blob:blob});tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error)}})})}
+function readChunks(sid){return openDb().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction("pedaços","readonly");var q=tx.objectStore("pedaços").index("sessao").getAll(sid);q.onsuccess=function(){resolve(q.result.sort(function(a,b){return a.id.localeCompare(b.id)}).map(function(x){return x.blob}))};q.onerror=function(){reject(q.error)}})})}
+function clearMeters(){$("tabmeter").style.width="0%";$("micmeter").style.width="0%"}
+function paintMeter(analyser,id){if(!analyser){$(id).style.width="0%";return}var b=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(b);var sum=0;for(var i=0;i<b.length;i++){var v=(b[i]-128)/128;sum+=v*v}var rms=Math.sqrt(sum/b.length);$(id).style.width=Math.min(100,Math.round(rms*500))+"%"}
+function meterLoop(){if(!active)return;paintMeter(tabAnalyser,"tabmeter");paintMeter(micAnalyser,"micmeter");animation=requestAnimationFrame(meterLoop)}
+function saveText(){try{localStorage.setItem("cenpec-texto-grupo-"+$("grupo").value,JSON.stringify({texto:$("transcript").value,sessao:sessionId,data:new Date().toISOString()}))}catch(e){}}
+function appendText(t){if(!t.trim())return;var mark=new Date().toLocaleTimeString("pt-BR");$("transcript").value+=($("transcript").value.trim()?"\n":"")+"["+mark+"] "+t.trim();$("transcript").scrollTop=$("transcript").scrollHeight;saveText()}
+function stopRecognition(){clearTimeout(restartTimer);if(recognition){try{recognition.onend=null;recognition.abort()}catch(e){}recognition=null}}
+function startRecognition(track){
+var Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!Speech){speechStatus("Não disponível neste navegador; gravação de áudio continua");return}
+try{
+recognition=new Speech();recognition.lang="pt-BR";recognition.continuous=true;recognition.interimResults=true;recognition.maxAlternatives=1;
+recognition.onstart=function(){speechStatus("Transcrevendo o áudio combinado");recognitionFailures=0};
+recognition.onresult=function(e){var parcial="";for(var i=e.resultIndex;i<e.results.length;i++){var t=e.results[i][0].transcript;if(e.results[i].isFinal){appendText(t)}else{parcial+=t+" "}}$("partial").textContent=parcial};
+recognition.onerror=function(e){var fatal=["not-allowed","service-not-allowed","audio-capture","language-not-supported"];speechStatus("Falha no reconhecimento: "+e.error);if(fatal.indexOf(e.error)>=0){recognitionFailures=99}else{recognitionFailures++}};
+recognition.onend=function(){if(!active||!track||track.readyState!=="live"||recognitionFailures>=4)return;speechStatus("Retomando reconhecimento...");restartTimer=setTimeout(function(){if(active&&recognition){try{recognition.start(track)}catch(e){speechStatus("Não foi possível retomar: "+e.message)}}},700)};
+recognition.start(track);
+}catch(e){speechStatus("Áudio captado; reconhecimento por faixa indisponível: "+e.message);try{recognition&&recognition.abort()}catch(x){}recognition=null}
+}
+function stopTracks(){[displayStream,micStream].forEach(function(stream){if(stream)stream.getTracks().forEach(function(t){try{t.stop()}catch(e){}})});displayStream=null;micStream=null;if(context){try{context.close()}catch(e){}}context=null;tabSource=null;micSource=null;tabAnalyser=null;micAnalyser=null;mixed=null;monitor=false;$("listen").disabled=true;$("listen").textContent="Não ouço o Meet: ativar áudio";clearMeters()}
+async function start(){
+if(active)return;
+if(!$("consent").checked){status("Confirme o consentimento de todas as participantes antes de iniciar.");return}
+if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){status("Este navegador não permite captar áudio de guias. Abra no Chrome atualizado em um computador.");return}
+$("start").disabled=true;status("Escolha a guia do Google Meet e marque Compartilhar áudio da guia...");
+try{
+displayStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true,preferCurrentTab:false,selfBrowserSurface:"exclude",surfaceSwitching:"include",systemAudio:"include"});
+var tabTrack=displayStream.getAudioTracks()[0];
+if(!tabTrack)throw new Error("Não veio áudio da guia. Encerre e repita escolhendo a guia do Meet com Compartilhar áudio ativado.");
+try{micStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(err){micStream=null}
+context=new (window.AudioContext||window.webkitAudioContext)();await context.resume();mixed=context.createMediaStreamDestination();
+tabSource=context.createMediaStreamSource(new MediaStream([tabTrack]));tabSource.connect(mixed);tabAnalyser=context.createAnalyser();tabAnalyser.fftSize=1024;tabSource.connect(tabAnalyser);
+if(micStream&&micStream.getAudioTracks().length){micSource=context.createMediaStreamSource(micStream);micSource.connect(mixed);micAnalyser=context.createAnalyser();micAnalyser.fftSize=1024;micSource.connect(micAnalyser);$("micstatus").textContent="Conectado"}else{$("micstatus").textContent="Sem acesso; apenas vozes do Meet"}
+$("tabstatus").textContent="Conectado — compartilhe e peça uma fala de teste";
+sessionId="g"+$("grupo").value+"-"+Date.now();sequence=0;chunks=[];writeChain=Promise.resolve();recognitionFailures=0;
+try{localStorage.setItem("cenpec-ultima-sessao-grupo-"+$("grupo").value,sessionId)}catch(e){}
+if(typeof MediaRecorder!=="undefined"){
+recordedMime=MediaRecorder.isTypeSupported("audio/webm;codecs=opus")?"audio/webm;codecs=opus":"audio/webm";
+recorder=new MediaRecorder(mixed.stream,MediaRecorder.isTypeSupported(recordedMime)?{mimeType:recordedMime}:{});
+recordedMime=recorder.mimeType||recordedMime;
+recorder.ondataavailable=function(e){if(!e.data||!e.data.size)return;chunks.push(e.data);writeChain=writeChain.then(function(){return saveChunk(e.data)}).catch(function(err){$("saveinfo").textContent="Atenção: não foi possível guardar o áudio para recuperação automática. Encerre e baixe o arquivo antes de sair. "+err.message})};
+recorder.onerror=function(e){status("Problema na gravação: "+(e.error&&e.error.message||"erro desconhecido"))};
+recorder.start(5000)
+}else{$("saveinfo").textContent="Gravação indisponível no navegador atual; experimente o Chrome."}
+active=true;displayStream.getVideoTracks().forEach(function(t){t.onended=function(){if(active){status("Compartilhamento da guia encerrado. Finalizando o teste...");stop()}}});
+$("grupo").disabled=true;$("stop").disabled=false;$("listen").disabled=false;$("downloadAudio").disabled=true;
+startRecognition(mixed.stream.getAudioTracks()[0]);meterLoop();status("Teste em andamento. Aguarde uma fala local e outra fala de uma colega pelo Meet. Ao terminar, clique em Encerrar.");
+}catch(e){status("Teste não iniciado: "+e.message);stopRecognition();stopTracks();$("start").disabled=false;$("grupo").disabled=false}
+}
+async function stop(){
+if(!active)return;active=false;cancelAnimationFrame(animation);clearTimeout(restartTimer);stopRecognition();$("partial").textContent="";$("stop").disabled=true;
+status("Finalizando os fragmentos de áudio e preparando os downloads...");
+if(recorder&&recorder.state!=="inactive"){
+await new Promise(function(resolve){recorder.addEventListener("stop",resolve,{once:true});try{recorder.stop()}catch(e){resolve()}})
+}
+try{await writeChain}catch(e){}
+recorder=null;stopTracks();$("start").disabled=false;$("grupo").disabled=false;$("downloadAudio").disabled=chunks.length===0;saveText();
+speechStatus("Teste encerrado");$("tabstatus").textContent="Encerrado";$("micstatus").textContent="Encerrado";
+status("Teste encerrado. Baixe a transcrição e a gravação. Confira se a fala remota e a local estão presentes.");
+}
+$("start").addEventListener("click",start);$("stop").addEventListener("click",stop);
+$("listen").addEventListener("click",function(){if(!tabSource||!context)return;try{if(!monitor){tabSource.connect(context.destination);monitor=true;$("listen").textContent="Desativar áudio adicional"}else{tabSource.disconnect(context.destination);monitor=false;$("listen").textContent="Não ouço o Meet: ativar áudio"}}catch(e){status("Não foi possível ajustar a escuta: "+e.message)}});
+$("transcript").addEventListener("input",saveText);
+$("downloadText").addEventListener("click",function(){var txt="CENPEC · Teste de transcrição\nGrupo "+$("grupo").value+"\nGerado em "+new Date().toLocaleString("pt-BR")+"\nRevisão humana necessária: texto automático pode conter falhas.\n\n"+$("transcript").value;download(new Blob([txt],{type:"text/plain;charset=utf-8"}),safeName()+"-transcricao.txt")});
+$("downloadAudio").addEventListener("click",function(){if(!chunks.length){status("Nenhum áudio disponível. Experimente Recuperar gravação anterior.");return}download(new Blob(chunks,{type:recordedMime}),safeName()+"-audio.webm")});
+$("recover").addEventListener("click",async function(){if(active){status("Encerre o teste atual antes de recuperar uma gravação.");return}var sid=localStorage.getItem("cenpec-ultima-sessao-grupo-"+$("grupo").value);if(!sid){status("Não há gravação anterior identificada para este grupo neste navegador.");return}
+try{var saved=await readChunks(sid);if(!saved.length){status("Não encontramos fragmentos de áudio para recuperar.");return}download(new Blob(saved,{type:"audio/webm"}),"grupo-"+$("grupo").value+"-audio-recuperado.webm");status("Gravação anterior recuperada e enviada para download: "+saved.length+" fragmentos.")}catch(e){status("Não foi possível recuperar o áudio: "+e.message)}});
+$("grupo").addEventListener("change",function(){var item;try{item=JSON.parse(localStorage.getItem("cenpec-texto-grupo-"+$("grupo").value)||"null")}catch(e){}$("transcript").value=item&&item.texto||""});
+window.addEventListener("beforeunload",function(e){if(active){e.preventDefault();e.returnValue=""}});
+$("grupo").dispatchEvent(new Event("change"));
+})();
+</script>
+</body></html>
