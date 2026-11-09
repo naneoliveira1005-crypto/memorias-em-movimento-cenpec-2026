@@ -70,7 +70,7 @@ $("iniciar").addEventListener("click",async()=>{
      status("Carregando o modelo de português pela primeira vez. Pode levar alguns minutos. Aguarde...");
      const {pipeline}=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0");
      transcriber=await pipeline("automatic-speech-recognition","onnx-community/whisper-tiny",{
-       device:"wasm",dtype:"q8",
+       device:"wasm",dtype:"fp32",
        progress_callback:p=>{
          if(p && p.status==="progress" && Number.isFinite(p.progress)){
            status("Baixando modelo de transcrição... "+Math.round(p.progress)+"% (um de seus arquivos).");
