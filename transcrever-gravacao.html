@@ -16,13 +16,13 @@
 <p>Esta página é separada: os cinco jogos, o Desafio de Luísa e a gravação original não foram modificados.</p>
 </section>
 <section class="panel">
-<h2>1. Escolher a gravação</h2>
+<h2>Teste de transcrição automática suspenso</h2><p class="warning"><strong>Não tente transcrever por esta página por enquanto.</strong> O modelo local causou travamento em computador. O áudio .webm que você baixou permanece preservado. A gravação da voz distante foi confirmada; precisamos de outra forma de transformar o áudio em texto que não sobrecarregue seu computador.</p><h2>1. Selecionar gravação (somente para identificar arquivo)</h2>
 <label for="grupo">Grupo</label>
 <select id="grupo"><option value="1">Grupo 1 · Identidade</option><option value="2">Grupo 2 · Rotina</option><option value="3">Grupo 3 · Leitura da Escola</option><option value="4">Grupo 4 · Escolhas</option><option value="5">Grupo 5 · Intervenção</option></select>
 <label for="arquivo">Arquivo de áudio (.webm, .wav, .mp3 ou outro formato reconhecido pelo Chrome)</label>
 <input id="arquivo" type="file" accept="audio/*,.webm,.wav,.mp3,.m4a,.ogg">
 <p class="note" id="arquivoInfo">Selecione a gravação que você já conseguiu ouvir.</p>
-<div class="row"><button id="iniciar" type="button">Transcrever gravação</button></div>
+<div class="row"><button id="iniciar" type="button" disabled title="Transcrição suspensa para evitar novo travamento">Transcrição suspensa — aguardando alternativa</button></div>
 <div class="bar"><div id="progresso"></div></div>
 <div id="status" aria-live="polite" role="status">Aguardando a seleção do arquivo.</div>
 <p class="note">É normal a primeira transcrição demorar: há download do modelo e processamento do áudio. Não feche esta guia durante a operação. Testaremos primeiro um arquivo curto.</p>
