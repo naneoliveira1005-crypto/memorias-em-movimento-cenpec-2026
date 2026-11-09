@@ -1,0 +1,112 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+<title>Produções dos Grupos | Painel da Formadora · CENPEC 2026</title>
+<style>
+:root{--verde:#174635;--claro:#eff4ef;--ouro:#b79a51;--tinta:#153b2e}*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 Arial,sans-serif;background:var(--claro);color:var(--tinta)}
+header{background:var(--verde);color:white;border-bottom:5px solid var(--ouro);padding:26px 20px}header>div,main{max-width:1080px;margin:auto}h1{font:italic 700 clamp(26px,4vw,42px) Georgia,serif;margin:8px 0}header p{margin:0;color:#d7e4db}h2{color:var(--verde);font-size:21px;margin:0 0 13px}h3{margin:14px 0 7px;color:var(--verde)}main{padding:24px 17px 75px}.panel{background:white;padding:23px;border-radius:16px;box-shadow:0 4px 18px #1239200c;margin-bottom:19px}
+button,input{font:inherit}input{border:1px solid #adc4b2;border-radius:9px;padding:11px 13px;min-width:245px}
+button{border:0;background:var(--verde);color:#fff;font-weight:700;border-radius:9px;padding:11px 17px;cursor:pointer}button.secondary{background:#e9f0ea;color:var(--verde);border:1px solid #b5c8ba}
+button:disabled{opacity:.4;cursor:not-allowed}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.message{margin:12px 0;padding:12px;border-radius:9px;background:#ecf2ec;color:var(--tinta)}.muted{color:#587063}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px}
+.group{border:1px solid #c4d6c9;border-radius:12px;padding:16px;min-height:125px;background:#fdfefd;text-align:left;color:var(--tinta);font-weight:400}
+.group strong{display:block;font-size:20px;margin-bottom:5px}.group small{display:block;line-height:1.5;color:#587063}
+.group.selected{border:2px solid var(--verde);background:#edf5ee}.box{padding:13px;border-radius:10px;background:#f4f7f3;white-space:pre-wrap;min-height:54px}
+table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #c8d7cb;padding:11px;vertical-align:top;white-space:pre-wrap;overflow-wrap:anywhere}th{background:#eaf2eb}th:first-child{width:105px}
+#printArea{display:none}a{color:var(--verde);font-weight:700}@media(max-width:650px){.panel{padding:15px}th,td{font-size:12px;padding:7px}th:first-child{width:62px}}
+@page{size:A4 landscape;margin:13mm}
+@media print{header,main,.no-print{display:none!important}body{background:white;color:black}#printArea{display:block!important}#printArea h1{font-size:25px}#printArea h2{margin:12px 0}#printArea .box{border:1px solid #a3a3a3;background:white;page-break-inside:avoid}#printArea table{font-size:11px}#printArea th,#printArea td{padding:6px}#printArea section{break-before:page}#printArea section:first-child{break-before:auto}}
+</style></head><body>
+<header><div><p>CMOC · CENPEC · PROJETO DESENVOLVIMENTO ESCOLAR</p><h1>Produções dos grupos</h1><p>Painel reservado à formadora · III Encontro Formativo · Barrocas e Santaluz</p></div></header>
+<main>
+<section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Consulte e baixe as agendas e os Mapas de Acompanhamento. Os registros são salvos pelos grupos no decorrer da atividade, desde que utilizem o acesso específico disponibilizado para cada grupo.</p>
+<label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="off" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
+<section class="panel" id="painel" hidden>
+<div class="row" style="justify-content:space-between"><h2>Registros do encontro</h2><button id="refresh" class="secondary" type="button">Atualizar registros</button></div>
+<div id="groups" class="grid"></div>
+<p id="atualizacao" class="message" role="status">Selecione um grupo para consultar sua produção.</p>
+<div class="row"><button id="pdf" type="button" disabled>Baixar agenda e mapa em PDF</button><button id="json" type="button" class="secondary" disabled>Baixar cópia (.json)</button><button id="all" type="button" class="secondary">Baixar cópia dos cinco grupos (.json)</button></div>
+<div id="detail" style="margin-top:20px"></div>
+</section>
+<section class="panel"><p class="muted">Os grupos acessam o <a href="desafio-de-luisa.html">Desafio de Luísa</a> para construir os registros. O painel mostra a última versão recebida de cada grupo, sem exigir envio por WhatsApp.</p></section>
+</main><div id="printArea"></div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const api='https://zpsjuxusydfbptjotyxo.supabase.co/rest/v1/rpc/cenpec26_listar_formadora';
+const apiKey='sb_publishable_n7giA7FAUqRmj1zv2JF8og_VQbjrxa7';
+const tasks={"1":"Ausência inesperada de uma professora do 3º ano","2":"Devolutiva à professora do 2º ano","3":"Solicitação de conversa por uma família","4":"Ao analisar os resultados do 1º ano, Luísa identifica que, dos 20 estudantes da turma, apenas seis apresentam escrita alfabética e leitura fluente.","5":"Encontro de alinhamento com a Secretaria","6":"Análise de planejamentos","7":"A escola precisa organizar o processo de transição das crianças do G5 para o 1º ano.","8":"Demanda administrativa urgente da Secretaria","9":"As atividades dos estudantes do 3º ao 5º ano revelam dificuldades para realizar inferências, interpretar informações e organizar produções textuais. A situação preocupa as professoras, que também vêm observando resultados de aprendizagem abaixo do esperado.","10":"Prazo para entrega de relatório","11":"Ao analisar o planejamento de novembro da Educação Infantil (G4 e G5), Luísa observa que, após a leitura de Meninas Negras, de Madu Costa, a professora propõe às crianças cobrir e copiar palavras pontilhadas, embora o objetivo registrado seja produzir escritas próprias.","12":"Retomada de acompanhamento de formação anterior","13":"Observação de aula no 2º ano","14":"Organização dos registros pedagógicos","15":"Reunião com a gestão escolar"};
+let adminKey='',records=[],current=null;
+function stat(t){$('status').textContent=t}
+function info(t){$('atualizacao').textContent=t}
+function make(tag,text,parent,cls){let n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;if(parent)parent.append(n);return n}
+function saveFile(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)}
+function docText(v){return typeof v==='string'?v:'—'}
+async function fetchRecords(){
+ if(!adminKey)return;
+ stat('Conferindo as produções...');
+ const response=await fetch(api,{method:'POST',headers:{'Content-Type':'application/json','apikey':apiKey,'Accept':'application/json'},body:JSON.stringify({p_chave:adminKey}),cache:'no-store',referrerPolicy:'no-referrer'});
+ const obj=await response.json().catch(()=>({}));
+ if(!response.ok)throw Error(obj.message||'Não foi possível consultar as produções.');
+ if(!Array.isArray(obj))throw Error('Resposta inesperada do painel');
+ records=obj;
+ $('painel').hidden=false;stat('Acesso confirmado. Produções atualizadas às '+new Date().toLocaleTimeString('pt-BR')+'.');
+ render();
+}
+function agendaLines(data,slot){let ids=(data.agenda||{})[slot]||[];return Array.isArray(ids)&&ids.length?ids.map(x=>String(x).padStart(2,'0')+' · '+(tasks[String(x)]||'Situação '+x)).join('\n'):'—'}
+function makeAgenda(data,parent){
+ const t=make('table',undefined,parent);let head=make('tr',undefined,t);['Turno','Segunda','Terça','Quarta','Quinta','Sexta'].forEach(a=>make('th',a,head));
+ for(const [turn,suf] of [['Manhã','m'],['Tarde','t']]){
+  let row=make('tr',undefined,t);make('th',turn,row);
+  for(const dia of ['seg','ter','qua','qui','sex'])make('td',agendaLines(data,dia+'_'+suf),row);
+ }
+}
+function makeDetail(record,parent){
+ parent.replaceChildren();
+ if(!record||!record.dados){make('p','Nenhuma produção online recebida deste grupo até o momento.',parent,'muted');return}
+ const data=record.dados;
+ make('h2','Grupo '+record.grupo+' · Agenda semanal de Luísa',parent);
+ makeAgenda(data,parent);
+ make('h2','Mapa de Acompanhamento',parent);
+ [['acao','Ação escolhida'],['antes','ANTES · Evidências, preparação e articulações'],['durante','DURANTE · Ação, participantes e foco'],['depois','DEPOIS / RETOMADA · Registros, devolutiva e novas evidências']].forEach(([field,label])=>{make('h3',label,parent);make('div',docText(data[field])||'—',parent,'box')});
+}
+function render(){
+ const parent=$('groups');parent.replaceChildren();
+ for(let g=1;g<=5;g++){
+  const rec=records.find(r=>Number(r.grupo)===g)||{grupo:g,dados:null,versao:0};
+  const card=make('button',undefined,parent,'group'+(current===g?' selected':''));card.type='button';
+  make('strong','Grupo '+g,card);
+  make('small',rec.dados?'Produção recebida':'Aguardando produção',card);
+  if(rec.atualizado_em)make('small','Atualizada em '+new Date(rec.atualizado_em).toLocaleString('pt-BR'),card);
+  card.addEventListener('click',()=>{current=g;render()});
+ }
+ const rec=records.find(r=>Number(r.grupo)===current);
+ const has=Boolean(rec&&rec.dados);
+ $('pdf').disabled=$('json').disabled=!has;
+ if(!current)info('Selecione um grupo para consultar sua produção.');
+ else if(has)info('Grupo '+current+' · Versão '+rec.versao+' · Registro recebido às '+new Date(rec.atualizado_em).toLocaleString('pt-BR'));
+ else info('Grupo '+current+' · Nenhuma produção recebida até o momento.');
+ makeDetail(rec,$('detail'));
+}
+async function enter(){
+ const value=$('senhaAdmin').value.trim();if(!value){stat('Informe a chave de acesso.');return}
+ adminKey=value;$('senhaAdmin').value='';
+ try{sessionStorage.setItem('cenpec26_admin',value);await fetchRecords()}
+ catch(e){adminKey='';sessionStorage.removeItem('cenpec26_admin');stat('Não foi possível entrar: '+e.message)}
+}
+$('entrar').addEventListener('click',enter);
+$('senhaAdmin').addEventListener('keydown',e=>{if(e.key==='Enter')enter()});
+$('refresh').addEventListener('click',async()=>{try{await fetchRecords()}catch(e){info('Falha ao atualizar: '+e.message)}});
+$('json').addEventListener('click',()=>{let rec=records.find(r=>Number(r.grupo)===current);if(!rec||!rec.dados)return;saveFile(new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'cenpec-2026-grupo-'+current+'.json')});
+$('all').addEventListener('click',()=>saveFile(new Blob([JSON.stringify(records,null,2)],{type:'application/json'}),'cenpec-2026-cinco-grupos.json'));
+$('pdf').addEventListener('click',()=>{
+ const rec=records.find(r=>Number(r.grupo)===current);if(!rec||!rec.dados)return;
+ const area=$('printArea');area.replaceChildren();let heading=make('h1','III Encontro Formativo · CENPEC 2026',area);make('p','Barrocas e Santaluz · Produção coletiva do Grupo '+current,area);makeDetail(rec,area);window.print()
+});
+const params=new URLSearchParams(location.search);
+const keyFromUrl=params.get('acesso');
+if(keyFromUrl&&keyFromUrl.length>=24){try{sessionStorage.setItem('cenpec26_admin',keyFromUrl);history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}
+const sessionKey=sessionStorage.getItem('cenpec26_admin');
+if(sessionKey){adminKey=sessionKey;fetchRecords().catch(err=>{stat('Confira sua chave: '+err.message);adminKey='';sessionStorage.removeItem('cenpec26_admin')})}
+})();
+</script></body></html>
