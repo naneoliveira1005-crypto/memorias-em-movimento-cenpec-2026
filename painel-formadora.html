@@ -19,7 +19,7 @@ table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px so
 <header><div><p>CMOC · CENPEC · PROJETO DESENVOLVIMENTO ESCOLAR</p><h1>Produções dos grupos</h1><p>Painel reservado à formadora · III Encontro Formativo · Barrocas e Santaluz</p></div></header>
 <main>
 <section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Acompanhe as produções dos cinco grupos. Ao acessar o encontro pelo QR Code único, os grupos salvam automaticamente suas agendas e mapas online. Clique em <strong>Atualizar registros</strong> para consultar as alterações. A chave deste painel é exclusiva da formadora.</p>
-<label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="off" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
+<label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="current-password" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px"><input type="checkbox" id="lembrar" style="min-width:auto"> Lembrar meu acesso neste dispositivo</label><p class="muted" style="font-size:.85rem">Marque somente no seu computador pessoal. Em dispositivos compartilhados, deixe desmarcado.</p><button type="button" class="secondary" id="esquecer" style="margin-top:6px">Esquecer acesso salvo neste dispositivo</button><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
 <section class="panel" id="painel" hidden>
 <div class="row" style="justify-content:space-between"><h2>Registros do encontro</h2><button id="refresh" class="secondary" type="button">Atualizar registros</button></div>
 <div id="groups" class="grid"></div>
@@ -128,10 +128,11 @@ function render(){
 async function enter(){
  const value=$('senhaAdmin').value.trim();if(!value){stat('Informe a chave de acesso.');return}
  adminKey=value;$('senhaAdmin').value='';
- try{sessionStorage.setItem('cenpec26_admin',value);await fetchRecords()}
+ try{sessionStorage.setItem('cenpec26_admin',value);await fetchRecords();if($('lembrar').checked)localStorage.setItem('cenpec26_admin_lembrado',value);else localStorage.removeItem('cenpec26_admin_lembrado')}
  catch(e){adminKey='';sessionStorage.removeItem('cenpec26_admin');stat('Não foi possível entrar: '+e.message)}
 }
 $('entrar').addEventListener('click',enter);
+$('esquecer').addEventListener('click',()=>{localStorage.removeItem('cenpec26_admin_lembrado');sessionStorage.removeItem('cenpec26_admin');adminKey='';$('lembrar').checked=false;$('painel').hidden=true;stat('Acesso salvo apagado deste navegador.');});
 $('senhaAdmin').addEventListener('keydown',e=>{if(e.key==='Enter')enter()});
 $('refresh').addEventListener('click',async()=>{try{await fetchRecords()}catch(e){info('Falha ao atualizar: '+e.message)}});
 $('json').addEventListener('click',()=>{let rec=records.find(r=>Number(r.grupo)===current);if(!rec||!rec.dados)return;saveFile(new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'cenpec-2026-grupo-'+current+'.json')});
@@ -143,7 +144,9 @@ $('pdf').addEventListener('click',()=>{
 const params=new URLSearchParams(location.search);
 const keyFromUrl=params.get('acesso');
 if(keyFromUrl&&keyFromUrl.length>=24){try{sessionStorage.setItem('cenpec26_admin',keyFromUrl);history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}
-const sessionKey=sessionStorage.getItem('cenpec26_admin');
-if(sessionKey){adminKey=sessionKey;fetchRecords().catch(err=>{stat('Confira sua chave: '+err.message);adminKey='';sessionStorage.removeItem('cenpec26_admin')})}
+const remembered=localStorage.getItem('cenpec26_admin_lembrado');
+if(remembered)$('lembrar').checked=true;
+const sessionKey=sessionStorage.getItem('cenpec26_admin')||remembered;
+if(sessionKey){adminKey=sessionKey;fetchRecords().catch(err=>{stat('Confira sua chave: '+err.message);adminKey='';sessionStorage.removeItem('cenpec26_admin');localStorage.removeItem('cenpec26_admin_lembrado');$('lembrar').checked=false})}
 })();
 </script></body></html>
