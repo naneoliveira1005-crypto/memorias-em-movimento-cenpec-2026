@@ -18,14 +18,14 @@ table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px so
 </style></head><body>
 <header><div><p>CMOC · CENPEC · PROJETO DESENVOLVIMENTO ESCOLAR</p><h1>Produções dos grupos</h1><p>Painel reservado à formadora · III Encontro Formativo · Barrocas e Santaluz</p></div></header>
 <main>
-<section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Acesse os cinco espaços do Desafio de Luísa e consulte eventuais registros salvos online. As produções entregues em PDF por WhatsApp ou outro canal são recebidas separadamente e não aparecem automaticamente aqui.</p>
+<section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Acompanhe as produções dos cinco grupos. Ao acessar o encontro pelo QR Code único, os grupos salvam automaticamente suas agendas e mapas online. Clique em <strong>Atualizar registros</strong> para consultar as alterações. A chave deste painel é exclusiva da formadora.</p>
 <label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="off" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
 <section class="panel" id="painel" hidden>
 <div class="row" style="justify-content:space-between"><h2>Registros do encontro</h2><button id="refresh" class="secondary" type="button">Atualizar registros</button></div>
 <div id="groups" class="grid"></div>
 <div style="margin:18px 0;padding:15px;background:#f2f6f2;border:1px solid #cbdace;border-radius:12px">
-<h3>Entrar no espaço dos cinco grupos</h3>
-<p class="muted">Abra a mesma atividade utilizada pelas coordenadoras, já com o grupo selecionado. Isso permite consultar o enunciado e o espaço de trabalho; uma produção salva somente no aparelho da equipe não poderá ser recuperada aqui. Nesse caso, use o PDF que elas encaminharem.</p>
+<h3>Visualizar os espaços dos cinco grupos</h3>
+<p class="muted">Os botões abaixo abrem a atividade com o grupo indicado, para consulta do enunciado. <strong>Para ler as respostas recebidas online, use os cinco cartões “Grupo 1” a “Grupo 5” acima.</strong> Eles mostram a produção após a atualização. Nenhuma senha dos grupos é necessária no seu painel.</p>
 <div class="row" style="gap:10px;flex-wrap:wrap">
 <a href="desafio-de-luisa.html?grupo=1" target="_blank" rel="noopener" style="padding:9px 13px;border:1px solid #174635;border-radius:8px">Grupo 1</a>
 <a href="desafio-de-luisa.html?grupo=2" target="_blank" rel="noopener" style="padding:9px 13px;border:1px solid #174635;border-radius:8px">Grupo 2</a>
@@ -43,7 +43,7 @@ table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px so
 <div class="row"><button id="pdf" type="button" disabled>Gerar PDF da agenda e mapa</button><button id="json" type="button" class="secondary" disabled>Baixar cópia (.json)</button><button id="all" type="button" class="secondary">Baixar cópia dos cinco grupos (.json)</button></div>
 <div id="detail" style="margin-top:20px"></div>
 </section>
-<section class="panel"><p class="muted">Os grupos acessam o <a href="desafio-de-luisa.html">Desafio de Luísa</a> pelo link da plataforma formativa. O painel exibe somente produções salvas online; se a entrega for por PDF enviado diretamente à formadora, utilize o arquivo recebido.</p></section>
+<section class="panel"><p class="muted">As equipes entram pela plataforma com o QR único e selecionam seu grupo. As respostas salvas online aparecem aqui; você pode abrir cada grupo e gerar seu PDF. Se um grupo entrar pelo endereço geral sem o QR, ele ficará apenas com o salvamento local.</p></section>
 </main><div id="printArea"></div>
 <script>
 (function(){
