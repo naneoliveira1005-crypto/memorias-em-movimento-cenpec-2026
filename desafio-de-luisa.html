@@ -8,7 +8,7 @@
 <section class="card"><h2>1. Identifiquem o grupo</h2><p class="muted">Permaneçam com as mesmas colegas da atividade Memórias em Movimento.</p><div class="actions"><label for="group">Grupo:</label><select id="group" style="max-width:220px"><option value="">Escolha seu grupo</option><option value="1">Grupo 1 · Identidade</option><option value="2">Grupo 2 · Rotina</option><option value="3">Grupo 3 · Leitura da escola</option><option value="4">Grupo 4 · Escolhas</option><option value="5">Grupo 5 · Intervenção</option></select><span id="status" class="status" role="status">Selecione um grupo para começar.</span></div><div class="intro" style="margin-top:14px">
 <strong>Como guardar a produção coletiva</strong>
 <p class="muted" style="margin:8px 0">Escolham o grupo e trabalhem normalmente. Ao final, cliquem em <strong>Gerar apresentação em PDF</strong>, salvem o arquivo e <strong>encaminhem à formadora pelo canal combinado</strong>. Não é preciso criar cadastro, senha ou novo link. Enquanto trabalham, uma cópia fica salva neste aparelho.</p>
-<p class="muted" style="font-size:.92rem">Atenção: a cópia deste aparelho não aparece em outro computador. O PDF enviado à formadora é o registro oficial da atividade.</p>
+<p class="muted" style="font-size:.92rem">Sem o QR do encontro, a cópia fica somente neste aparelho e o PDF deve ser encaminhado à formadora. <strong>Com o QR único do encontro, o salvamento online é automático e a formadora pode acompanhar no painel.</strong></p><p id="estadoSalvamento" role="status" class="status" style="font-weight:bold;padding:8px 0">Escolha o grupo para começar.</p>
 <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:bold">Opção técnica: salvamento online (não é necessário para entregar o PDF)</summary>
 <p class="muted">O salvamento online só funciona com uma chave específica do grupo. Usem esta opção apenas se a formadora orientar.</p>
 <div class="actions" id="acessoRemoto"><label for="senhaRemota">Chave de acesso do grupo:</label><input type="password" id="senhaRemota" autocomplete="off" placeholder="Chave de acesso do grupo" style="max-width:280px"><button type="button" class="secondary" id="conectarRemoto">Conectar registro</button><span id="statusRemoto" role="status" class="status">Salvo somente neste aparelho, até conectar um acesso online.</span></div>
@@ -37,7 +37,13 @@ const publicKey='sb_publishable_n7giA7FAUqRmj1zv2JF8og_VQbjrxa7';
 const remoteStatus=document.getElementById('statusRemoto');
 const remoteInput=document.getElementById('senhaRemota');
 let remoteKey='',remoteGroup='',remoteTimer=null,remoteQueue=Promise.resolve(),remotePending=false,loadingRemote=false;
-function remoteMessage(t){remoteStatus.textContent=t}
+let remoteMode='legacy',eventVersion=0;
+const inviteParams=new URLSearchParams(location.search),inviteFromUrl=inviteParams.get('convite');
+if(inviteFromUrl&&inviteFromUrl.length>=32){try{sessionStorage.setItem('cenpec26_convite',inviteFromUrl);history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}
+const eventKey=sessionStorage.getItem('cenpec26_convite')||'';
+const visibleRemote=document.getElementById('estadoSalvamento');
+if(eventKey)visibleRemote.textContent='QR do encontro reconhecido. Selecione seu grupo para iniciar o salvamento online.';
+function remoteMessage(t){remoteStatus.textContent=t;if(eventKey)visibleRemote.textContent=t;}
 function activeKey(){return remoteGroup===group.value?remoteKey:''}
 async function rpc(name,params){
  const response=await fetch(apiBase+name,{method:'POST',headers:{'Content-Type':'application/json','apikey':publicKey,'Accept':'application/json'},body:JSON.stringify(params),cache:'no-store',referrerPolicy:'no-referrer'});
@@ -46,49 +52,68 @@ async function rpc(name,params){
  return result;
 }
 function remoteSave(immediate){
- const g=group.value,key=activeKey();
- if(!g||!key)return;
+ const g=group.value,key=activeKey(),mode=remoteMode;
+ if(!g||!key)return Promise.resolve(false);
  clearTimeout(remoteTimer);
  const snapshot=JSON.parse(JSON.stringify(data()));
  remotePending=true;
- remoteMessage('Salvando as escolhas do grupo…');
+ remoteMessage('Salvando a produção do Grupo '+g+'…');
  const task=async()=>{
   remoteQueue=remoteQueue.catch(()=>{}).then(async()=>{
-   const answer=await rpc('cenpec26_salvar',{p_grupo:Number(g),p_chave:key,p_dados:snapshot});
+   const params=mode==='event'
+     ?{p_grupo:Number(g),p_convite:key,p_dados:snapshot,p_versao:eventVersion}
+     :{p_grupo:Number(g),p_chave:key,p_dados:snapshot};
+   const answer=await rpc(mode==='event'?'cenpec26_salvar_encontro':'cenpec26_salvar',params);
    if(g===group.value&&key===activeKey()){
+    if(mode==='event')eventVersion=Number(answer.versao||eventVersion);
     remotePending=false;
-    remoteMessage('Produção guardada para a formadora às '+new Date().toLocaleTimeString('pt-BR')+'.');
+    remoteMessage('Produção do Grupo '+g+' salva online às '+new Date().toLocaleTimeString('pt-BR')+'. A formadora já pode consultar no painel.');
    }
    return answer;
   });
-  try{await remoteQueue}catch(err){if(g===group.value){remotePending=true;remoteMessage('Falha ao salvar online: '+err.message+'. A cópia local foi preservada; clique em Confirmar salvamento para tentar novamente.')}}
+  try{await remoteQueue;return true}
+  catch(err){
+   if(g===group.value){remotePending=true;remoteMessage('Não foi possível salvar online: '+err.message+'. Sua cópia ficou preservada neste aparelho.')}
+   return false;
+  }
  };
  if(immediate)return task();
  remoteTimer=setTimeout(task,1100);
+ return Promise.resolve(true);
 }
 async function remoteRead(){
- const g=group.value,key=activeKey();if(!g||!key)return;
- remoteMessage('Conferindo o registro do Grupo '+g+'…');loadingRemote=true;
+ const g=group.value,key=activeKey(),mode=remoteMode;
+ if(!g||!key)return;
+ remoteMessage('Conectando o Grupo '+g+' ao painel da formadora…');loadingRemote=true;
  try{
-  const answer=await rpc('cenpec26_ler_grupo',{p_grupo:Number(g),p_chave:key});
+  const answer=mode==='event'
+    ?await rpc('cenpec26_ler_encontro',{p_grupo:Number(g),p_convite:key})
+    :await rpc('cenpec26_ler_grupo',{p_grupo:Number(g),p_chave:key});
   if(group.value!==g||activeKey()!==key)return;
+  if(mode==='event')eventVersion=Number(answer&&answer.versao||0);
   if(answer&&answer.dados){
    fields.forEach(x=>x.value=String(answer.dados[x.dataset.field]||''));
    agenda=answer.dados.agenda&&typeof answer.dados.agenda==='object'?answer.dados.agenda:{};
    renderAgenda();saveLocalOnly();
-   remoteMessage('Registro do grupo recuperado. As próximas alterações serão salvas automaticamente para a formadora.');
+   remoteMessage('Grupo '+g+' conectado. Registro online recuperado. Novas alterações serão salvas automaticamente.');
   }else{
-   remoteMessage('Grupo conectado. As escolhas serão salvas automaticamente para a formadora.');
-   if(fields.some(x=>x.value.trim())||Object.values(agenda).some(v=>v.length))remoteSave(true);
+   remoteMessage('Grupo '+g+' conectado. As próximas escolhas serão salvas automaticamente no painel da formadora.');
+   if(mode!=='event'&&(fields.some(x=>x.value.trim())||Object.values(agenda).some(v=>v.length)))remoteSave(true);
   }
- }catch(err){remoteMessage('Não foi possível conectar o grupo: '+err.message+'. Confira a chave de acesso.');remoteKey='';remoteGroup='';document.getElementById('enviarProducao').disabled=true}
+ }catch(err){
+  remoteMessage('Falha na conexão online: '+err.message+'. Sua cópia local continua disponível.');
+  remoteKey='';remoteGroup='';
+  document.getElementById('enviarProducao').disabled=true;
+ }
  finally{loadingRemote=false}
 }
 async function remoteConnect(key){
  if(!group.value){remoteMessage('Selecione primeiro o número do grupo.');return}
  if(!key||key.length<18){remoteMessage('Informe a chave de acesso completa do grupo.');return}
  remoteKey=key;remoteGroup=group.value;
- sessionStorage.setItem('cenpec26_token_'+remoteGroup,key);
+ remoteMode=eventKey&&key===eventKey?'event':'legacy';
+ eventVersion=0;
+ if(remoteMode==='legacy')sessionStorage.setItem('cenpec26_token_'+remoteGroup,key);
  document.getElementById('enviarProducao').disabled=false;
  remoteInput.value='';remoteInput.placeholder='Acesso conectado';
  await remoteRead();
@@ -110,12 +135,12 @@ group.addEventListener('change',()=>{
  clearTimeout(timer);clearTimeout(remoteTimer);remoteKey='';remoteGroup='';
  document.getElementById('enviarProducao').disabled=true;
  load();
- const savedKey=sessionStorage.getItem('cenpec26_token_'+group.value);
- if(savedKey)remoteConnect(savedKey);else remoteMessage('Aguardando vínculo do grupo. As alterações ficam salvas apenas neste computador.');
+ const savedKey=eventKey||sessionStorage.getItem('cenpec26_token_'+group.value);
+ if(savedKey)remoteConnect(savedKey);else remoteMessage('Sem QR do encontro: registro salvo somente neste aparelho. Gere o PDF para entregar.');
 });
 fields.forEach(x=>x.addEventListener('input',()=>{if(!group.value){status.textContent='Selecione seu grupo para salvar.';return}status.textContent='Salvando…';clearTimeout(timer);timer=setTimeout(save,350)}));
 function cell(t,tag){const x=document.createElement(tag);x.textContent=t;return x}
-print.addEventListener('click',()=>{save();document.getElementById('pgroup').textContent='Grupo '+group.value;const table=document.getElementById('ptable');table.replaceChildren();const days=['Segunda','Terça','Quarta','Quinta','Sexta'],abbr=['seg','ter','qua','qui','sex'];const head=document.createElement('tr');['Turno',...days].forEach(x=>head.appendChild(cell(x,'th')));table.appendChild(head);for(const [turn,suffix] of [['Manhã','m'],['Tarde','t']]){const row=document.createElement('tr');row.appendChild(cell(turn,'th'));abbr.forEach(x=>row.appendChild(cell((agenda[x+'_'+suffix]||[]).map(id=>String(id).padStart(2,'0')+' · '+taskTexts[id]).join('\n')||'—','td')));table.appendChild(row)}for(const key of ['acao','antes','durante','depois'])document.getElementById('p'+key).textContent=document.querySelector('[data-field="'+key+'"]').value||'—';window.print()});
+print.addEventListener('click',async()=>{clearTimeout(timer);saveLocalOnly();if(activeKey()){print.disabled=true;const ok=await remoteSave(true);print.disabled=false;if(!ok)alert('O salvamento online falhou. O PDF ainda pode ser gerado, mas informe à formadora para preservar a produção.')}document.getElementById('pgroup').textContent='Grupo '+group.value;const table=document.getElementById('ptable');table.replaceChildren();const days=['Segunda','Terça','Quarta','Quinta','Sexta'],abbr=['seg','ter','qua','qui','sex'];const head=document.createElement('tr');['Turno',...days].forEach(x=>head.appendChild(cell(x,'th')));table.appendChild(head);for(const [turn,suffix] of [['Manhã','m'],['Tarde','t']]){const row=document.createElement('tr');row.appendChild(cell(turn,'th'));abbr.forEach(x=>row.appendChild(cell((agenda[x+'_'+suffix]||[]).map(id=>String(id).padStart(2,'0')+' · '+taskTexts[id]).join('\n')||'—','td')));table.appendChild(row)}for(const key of ['acao','antes','durante','depois'])document.getElementById('p'+key).textContent=document.querySelector('[data-field="'+key+'"]').value||'—';window.print()});
 backup.addEventListener('click',()=>{save();const blob=new Blob([JSON.stringify({version:1,group:group.value,fields:data(),savedAt:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='desafio-luisa-grupo-'+group.value+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
 document.getElementById('restore').addEventListener('click',()=>file.click());
 file.addEventListener('change',async()=>{const f=file.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!d.group||!d.fields||!['1','2','3','4','5'].includes(String(d.group)))throw Error('Arquivo incompatível');if(!confirm('Restaurar a cópia do Grupo '+d.group+' neste dispositivo? Isso substituirá o registro local desse grupo.'))return;group.value=String(d.group);load();fields.forEach(x=>x.value=String(d.fields[x.dataset.field]||''));agenda=d.fields.agenda||{};renderAgenda();save()}catch(e){alert('Não foi possível restaurar: '+e.message)}finally{file.value=''}});
