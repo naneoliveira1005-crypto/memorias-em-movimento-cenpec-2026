@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Entrada do encontro · CENPEC 2026</title></head>
+<body style="font-family:Arial,sans-serif;background:#f3f6f1;color:#174635;text-align:center;padding:15vh 24px">
+<h1>Coordenação pedagógica em movimento</h1><p id="status">Preparando o acesso do encontro…</p>
+<p><a id="continuar" href="./" style="color:#174635;font-weight:bold">Abrir a capa do encontro</a></p>
+<script>
+(function(){
+ var p=new URLSearchParams(location.search), convite=p.get('convite');
+ if(!convite||convite.length<32){document.getElementById('status').textContent='O QR Code não contém uma autorização válida. Solicite o QR Code atualizado à formadora.';return;}
+ try{
+   sessionStorage.setItem('cenpec26_convite',convite);
+   document.getElementById('status').textContent='Acesso preparado. Abrindo a capa…';
+   location.replace('./');
+ }catch(e){
+   document.getElementById('status').textContent='O navegador bloqueou o armazenamento da autorização. Habilite o armazenamento do site e tente novamente.';
+ }
+})();
+</script></body></html>
