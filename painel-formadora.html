@@ -18,21 +18,32 @@ table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px so
 </style></head><body>
 <header><div><p>CMOC · CENPEC · PROJETO DESENVOLVIMENTO ESCOLAR</p><h1>Produções dos grupos</h1><p>Painel reservado à formadora · III Encontro Formativo · Barrocas e Santaluz</p></div></header>
 <main>
-<section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Consulte e baixe as agendas e os Mapas de Acompanhamento. Os registros são salvos pelos grupos no decorrer da atividade, desde que utilizem o acesso específico disponibilizado para cada grupo.</p>
+<section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Acesse os cinco espaços do Desafio de Luísa e consulte eventuais registros salvos online. As produções entregues em PDF por WhatsApp ou outro canal são recebidas separadamente e não aparecem automaticamente aqui.</p>
 <label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="off" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
 <section class="panel" id="painel" hidden>
 <div class="row" style="justify-content:space-between"><h2>Registros do encontro</h2><button id="refresh" class="secondary" type="button">Atualizar registros</button></div>
 <div id="groups" class="grid"></div>
 <div style="margin:18px 0;padding:15px;background:#f2f6f2;border:1px solid #cbdace;border-radius:12px">
-<h3>Preparar o acesso de cada grupo</h3><p class="muted" style="font-size:.91rem">Prepare um link individual para cada um dos cinco grupos e envie à coordenadora que ficará responsável pelo registro. As demais podem discutir as decisões com ela. <strong>Gere cada link uma única vez: um novo link do mesmo grupo invalida o anterior.</strong></p>
+<h3>Entrar no espaço dos cinco grupos</h3>
+<p class="muted">Abra a mesma atividade utilizada pelas coordenadoras, já com o grupo selecionado. Isso permite consultar o enunciado e o espaço de trabalho; uma produção salva somente no aparelho da equipe não poderá ser recuperada aqui. Nesse caso, use o PDF que elas encaminharem.</p>
+<div class="row" style="gap:10px;flex-wrap:wrap">
+<a href="desafio-de-luisa.html?grupo=1" target="_blank" rel="noopener" style="padding:9px 13px;border:1px solid #174635;border-radius:8px">Grupo 1</a>
+<a href="desafio-de-luisa.html?grupo=2" target="_blank" rel="noopener" style="padding:9px 13px;border:1px solid #174635;border-radius:8px">Grupo 2</a>
+<a href="desafio-de-luisa.html?grupo=3" target="_blank" rel="noopener" style="padding:9px 13px;border:1px solid #174635;border-radius:8px">Grupo 3</a>
+<a href="desafio-de-luisa.html?grupo=4" target="_blank" rel="noopener" style="padding:9px 13px;border:1px solid #174635;border-radius:8px">Grupo 4</a>
+<a href="desafio-de-luisa.html?grupo=5" target="_blank" rel="noopener" style="padding:9px 13px;border:1px solid #174635;border-radius:8px">Grupo 5</a>
+</div></div>
+<details style="margin:18px 0;padding:15px;background:#f2f6f2;border:1px solid #cbdace;border-radius:12px">
+<summary style="cursor:pointer;font-weight:bold">Configuração técnica do salvamento online (opcional)</summary>
+<p class="muted" style="font-size:.91rem">Essa modalidade não é necessária se os grupos enviarem o PDF. Se optar por utilizá-la em outra ocasião, poderá preparar acessos específicos. <strong>Gerar um novo link para o mesmo grupo invalida o anterior.</strong></p>
 <div class="row"><label for="grupoLink">Grupo:</label><select id="grupoLink" style="font:inherit;padding:10px;border-radius:8px"><option value="1">Grupo 1</option><option value="2">Grupo 2</option><option value="3">Grupo 3</option><option value="4">Grupo 4</option><option value="5">Grupo 5</option></select><button id="gerarLink" class="secondary" type="button">Preparar link de acesso</button></div>
 <div class="row" style="margin-top:10px"><input id="linkGerado" aria-label="Link de acesso do grupo" readonly placeholder="O link do grupo aparecerá aqui" style="width:min(600px,100%)"><button id="copiarLink" class="secondary" type="button">Copiar link</button></div>
-<p id="linkStatus" class="muted" role="status"></p></div>
+<p id="linkStatus" class="muted" role="status"></p></details>
 <p id="atualizacao" class="message" role="status">Selecione um grupo para consultar sua produção.</p>
 <div class="row"><button id="pdf" type="button" disabled>Gerar PDF da agenda e mapa</button><button id="json" type="button" class="secondary" disabled>Baixar cópia (.json)</button><button id="all" type="button" class="secondary">Baixar cópia dos cinco grupos (.json)</button></div>
 <div id="detail" style="margin-top:20px"></div>
 </section>
-<section class="panel"><p class="muted">Os grupos acessam o <a href="desafio-de-luisa.html">Desafio de Luísa</a> para construir os registros. O painel mostra a última versão recebida de cada grupo, sem exigir envio por WhatsApp.</p></section>
+<section class="panel"><p class="muted">Os grupos acessam o <a href="desafio-de-luisa.html">Desafio de Luísa</a> pelo link da plataforma formativa. O painel exibe somente produções salvas online; se a entrega for por PDF enviado diretamente à formadora, utilize o arquivo recebido.</p></section>
 </main><div id="printArea"></div>
 <script>
 (function(){
