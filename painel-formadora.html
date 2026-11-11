@@ -15,9 +15,62 @@ table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px so
 #printArea{display:none}a{color:var(--verde);font-weight:700}@media(max-width:650px){.panel{padding:15px}th,td{font-size:12px;padding:7px}th:first-child{width:62px}}
 @page{size:A4 landscape;margin:13mm}
 @media print{header,main,.no-print{display:none!important}body{background:white;color:black}#printArea{display:block!important}#printArea h1{font-size:25px}#printArea h2{margin:12px 0}#printArea .box{border:1px solid #a3a3a3;background:white;page-break-inside:avoid}#printArea table{font-size:11px}#printArea th,#printArea td{padding:6px}#printArea section{break-before:page}#printArea section:first-child{break-before:auto}}
+
+/* Central da Formadora: navegação em uma única página */
+.central-nav{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:15px 16px;background:#f8faf7;border-bottom:1px solid #cddbd0;position:sticky;top:0;z-index:30}
+.central-nav button{background:#edf3ed;color:var(--verde);border:1px solid #b8cbbd;font-size:15px;padding:10px 15px}
+.central-nav button[aria-current="page"]{background:var(--verde);color:white;border-color:var(--verde)}
+.central-intro{font-size:17px;line-height:1.65;color:#486358;max-width:840px}
+.central-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:22px}
+.central-card{border:1px solid #c7d9ca;border-radius:16px;padding:23px;background:#fff;display:flex;flex-direction:column;gap:12px;min-height:235px}
+.central-card h3{font-size:21px;margin:0}.central-card p{margin:0;color:#52685e;flex:1}
+.central-card button{align-self:flex-start}
+.central-kicker{display:inline-block;color:#176048;background:#e6f0e8;border-radius:40px;padding:5px 12px;font-size:13px;font-weight:700}
+.central-stage-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:10px}
+.central-stage-head h2{margin:0;font-size:24px}
+.central-game-nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.central-game-nav button{background:#eaf2eb;color:#174635;border:1px solid #b4cdb9;font-size:14px}
+.central-game-nav button[aria-pressed="true"]{background:#174635;color:#fff}
+.central-frame{display:block;width:100%;height:74vh;min-height:540px;border:1px solid #b7cbbd;border-radius:12px;background:#fff}
+.central-note{font-size:14px;color:#496659;margin:12px 0 16px}
+#centralHome[hidden],#centralStage[hidden]{display:none!important}
+@media(max-width:650px){.central-nav{position:static}.central-frame{height:70vh;min-height:440px}.central-card{min-height:0}}
+@media print{.central-nav,#centralHome,#centralStage{display:none!important}}
 </style></head><body>
 <header><div><p>CMOC · CENPEC · PROJETO DESENVOLVIMENTO ESCOLAR</p><h1>Produções dos grupos</h1><p>Painel reservado à formadora · III Encontro Formativo · Barrocas e Santaluz</p></div></header>
-<main>
+<nav class="central-nav no-print" aria-label="Áreas da Central da Formadora">
+<button type="button" data-central-view="inicio" aria-current="page">Visão geral</button>
+<button type="button" data-central-view="movimento1">1º Movimento</button>
+<button type="button" data-central-view="movimento2">2º Movimento</button>
+<button type="button" data-central-view="registros">Produções dos grupos</button>
+</nav>
+<main id="centralHome">
+<section class="panel">
+<span class="central-kicker">CENTRAL DA FORMADORA · CENPEC 2026</span>
+<h2 style="font:700 32px Georgia,serif;margin:13px 0;color:#174635">Um só lugar para acompanhar todo o encontro</h2>
+<p class="central-intro">Explore os dois movimentos e acompanhe as produções coletivas sem alternar entre várias páginas. A experimentação da formadora não modifica os registros reais das coordenadoras.</p>
+<div class="central-cards">
+<div class="central-card"><span class="central-kicker">01 · MEMÓRIAS EM MOVIMENTO</span><h3>Primeiro movimento</h3><p>Veja a entrada da plataforma e experimente os cinco jogos: Identidade, Rotina, Leitura da Escola, Escolhas e Intervenção.</p><button type="button" data-central-open="movimento1">Explorar os jogos</button></div>
+<div class="central-card"><span class="central-kicker">02 · O DESAFIO DE LUÍSA</span><h3>Segundo movimento</h3><p>Experimente as situações, a construção da agenda e o mapa de acompanhamento em uma simulação independente.</p><button type="button" data-central-open="movimento2">Abrir simulação</button></div>
+<div class="central-card"><span class="central-kicker">03 · ACOMPANHAMENTO</span><h3>Produções dos grupos</h3><p>Consulte os registros reais dos cinco grupos e gere os PDFs, mediante sua chave exclusiva de formadora.</p><button type="button" data-central-open="registros">Acompanhar produções</button></div>
+</div></section>
+</main>
+<main id="centralStage" hidden>
+<section class="panel">
+<div class="central-stage-head"><div><span class="central-kicker" id="centralStageKicker">VISUALIZAÇÃO</span><h2 id="centralStageTitle">Primeiro movimento</h2></div><button class="secondary" type="button" data-central-open="inicio">Voltar à visão geral</button></div>
+<p class="central-note" id="centralStageNote"></p>
+<div class="central-game-nav" id="centralGameNav" aria-label="Etapas do primeiro movimento" hidden>
+<button type="button" data-central-game="capa">Capa da plataforma</button>
+<button type="button" data-central-game="identidade">Identidade</button>
+<button type="button" data-central-game="rotina">Rotina</button>
+<button type="button" data-central-game="leitura">Leitura da escola</button>
+<button type="button" data-central-game="escolhas">Escolhas</button>
+<button type="button" data-central-game="intervencao">Intervenção</button>
+</div>
+<iframe id="centralFrame" class="central-frame" title="Visualização do movimento" loading="lazy" referrerpolicy="no-referrer"></iframe>
+</section>
+</main>
+<main id="centralPanel">
 <section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Acompanhe as produções dos cinco grupos. Ao acessar o encontro pelo QR Code único, os grupos salvam automaticamente suas agendas e mapas online. Clique em <strong>Atualizar registros</strong> para consultar as alterações. A chave deste painel é exclusiva da formadora.</p>
 <label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="current-password" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px"><input type="checkbox" id="lembrar" style="min-width:auto"> Lembrar meu acesso neste dispositivo</label><p class="muted" style="font-size:.85rem">Marque somente no seu computador pessoal. Em dispositivos compartilhados, deixe desmarcado.</p><button type="button" class="secondary" id="esquecer" style="margin-top:6px">Esquecer acesso salvo neste dispositivo</button><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
 <section class="panel" id="painel" hidden>
@@ -148,5 +201,67 @@ const remembered=localStorage.getItem('cenpec26_admin_lembrado');
 if(remembered)$('lembrar').checked=true;
 const sessionKey=sessionStorage.getItem('cenpec26_admin')||remembered;
 if(sessionKey){adminKey=sessionKey;fetchRecords().catch(err=>{stat('Confira sua chave: '+err.message);adminKey='';sessionStorage.removeItem('cenpec26_admin');localStorage.removeItem('cenpec26_admin_lembrado');$('lembrar').checked=false})}
+})();
+</script><script>
+(function(){
+'use strict';
+const panel=document.getElementById('centralPanel');
+const home=document.getElementById('centralHome');
+const stage=document.getElementById('centralStage');
+const frame=document.getElementById('centralFrame');
+const gameNav=document.getElementById('centralGameNav');
+const note=document.getElementById('centralStageNote');
+const title=document.getElementById('centralStageTitle');
+const kicker=document.getElementById('centralStageKicker');
+const pages={
+ capa:['index.html','Capa da plataforma'],
+ identidade:['identidade.html','Identidade'],
+ rotina:['rotina.html','Rotina'],
+ leitura:['leitura-da-escola.html','Leitura da escola'],
+ escolhas:['escolhas.html','Escolhas'],
+ intervencao:['intervencao.html','Intervenção']
+};
+let current='inicio';
+function showGame(key){
+ const item=pages[key]||pages.capa;
+ frame.setAttribute('sandbox','allow-scripts allow-forms allow-downloads allow-modals');
+ frame.src=item[0];
+ frame.title='Primeiro movimento — '+item[1];
+ gameNav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.centralGame===key)));
+}
+function show(view){
+ if(!['inicio','movimento1','movimento2','registros'].includes(view))view='inicio';
+ const leavingStage=current==='movimento1'||current==='movimento2';
+ current=view;
+ home.hidden=view!=='inicio';
+ stage.hidden=!(view==='movimento1'||view==='movimento2');
+ panel.style.display=view==='registros'?'':'none';
+ document.querySelectorAll('[data-central-view]').forEach(b=>{
+  if(b.dataset.centralView===view)b.setAttribute('aria-current','page');
+  else b.removeAttribute('aria-current');
+ });
+ if(view==='movimento1'){
+  kicker.textContent='01 · MEMÓRIAS EM MOVIMENTO';
+  title.textContent='Primeiro movimento — Memórias em Movimento';
+  note.textContent='Navegue pela capa e pelos cinco jogos dentro desta central. Esta visualização não usa o QR de salvamento do encontro e não registra produções dos grupos.';
+  gameNav.hidden=false;
+  showGame('capa');
+ }else if(view==='movimento2'){
+  kicker.textContent='02 · O DESAFIO DE LUÍSA';
+  title.textContent='Segundo movimento — O Desafio de Luísa';
+  note.textContent='Simulação da formadora: experimente agenda, situações e mapa. Os registros de teste ficam separados dos registros reais dos grupos.';
+  gameNav.hidden=true;
+  frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-downloads allow-modals');
+  frame.src='simulacao-formadora.html';
+  frame.title='Simulação independente do Desafio de Luísa';
+ }else if(leavingStage){
+  frame.src='about:blank';
+ }
+ window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-central-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.centralView)));
+document.querySelectorAll('[data-central-open]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.centralOpen)));
+document.querySelectorAll('[data-central-game]').forEach(b=>b.addEventListener('click',()=>showGame(b.dataset.centralGame)));
+show('inicio');
 })();
 </script></body></html>
