@@ -224,7 +224,7 @@ const pages={
 let current='inicio';
 function showGame(key){
  const item=pages[key]||pages.capa;
- frame.setAttribute('sandbox','allow-scripts allow-forms allow-downloads allow-modals');
+ frame.setAttribute('sandbox','allow-scripts allow-downloads allow-modals');
  frame.src=item[0];
  frame.title='Primeiro movimento — '+item[1];
  gameNav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.centralGame===key)));
@@ -243,7 +243,7 @@ function show(view){
  if(view==='movimento1'){
   kicker.textContent='01 · MEMÓRIAS EM MOVIMENTO';
   title.textContent='Primeiro movimento — Memórias em Movimento';
-  note.textContent='Navegue pela capa e pelos cinco jogos dentro desta central. Esta visualização não usa o QR de salvamento do encontro e não registra produções dos grupos.';
+  note.textContent='Navegue pela capa e pelos cinco jogos dentro desta central. Esta visualização não usa o QR de salvamento do encontro e não registra produções dos grupos. O envio de formulários externos fica bloqueado neste modo.';
   gameNav.hidden=false;
   showGame('capa');
  }else if(view==='movimento2'){
