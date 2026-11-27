@@ -72,9 +72,9 @@ table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px so
 </main>
 <main id="centralPanel">
 <section class="panel" id="entrada"><h2>Acesso da formadora</h2><p>Acompanhe as produções dos cinco grupos. Ao acessar o encontro pelo QR Code único, os grupos salvam automaticamente suas agendas e mapas online. Os registros são atualizados automaticamente a cada 15 segundos enquanto o painel está aberto. Você também pode clicar em <strong>Atualizar registros</strong>. A chave deste painel é exclusiva da formadora.</p>
-<label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="current-password" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px"><input type="checkbox" id="lembrar" style="min-width:auto"> Lembrar meu acesso neste dispositivo</label><p class="muted" style="font-size:.85rem">Marque somente no seu computador pessoal. Em dispositivos compartilhados, deixe desmarcado.</p><button type="button" class="secondary" id="esquecer" style="margin-top:6px">Esquecer acesso salvo neste dispositivo</button><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
+<label for="senhaAdmin"><strong>Chave de acesso da formadora:</strong></label><div class="row"><input type="password" id="senhaAdmin" autocomplete="current-password" placeholder="Informe a chave reservada"><button type="button" id="entrar">Entrar no painel</button></div><label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px"><input type="checkbox" id="lembrar" style="min-width:auto" checked> Lembrar meu acesso neste dispositivo</label><p class="muted" style="font-size:.85rem">Marque somente no seu computador pessoal. Em dispositivos compartilhados, deixe desmarcado.</p><button type="button" class="secondary" id="esquecer" style="margin-top:6px">Esquecer acesso salvo neste dispositivo</button><p id="status" class="message" role="status">Aguardando autenticação.</p><p class="muted" style="font-size:.9rem">A chave é exclusiva da formadora. Não compartilhe este acesso com os grupos. Os dados da pesquisa de Barrocas não aparecem neste painel.</p></section>
 <section class="panel" id="painel" hidden>
-<div class="row" style="justify-content:space-between"><h2>Registros do encontro</h2><button id="refresh" class="secondary" type="button">Atualizar registros</button></div>
+<div class="row" style="justify-content:space-between"><h2>Registros do encontro</h2><div class="row"><button id="refresh" class="secondary" type="button">Atualizar registros</button><button id="sairAcesso" class="secondary" type="button">Sair</button></div></div>
 <div id="groups" class="grid"></div>
 <div style="margin:18px 0;padding:15px;background:#f2f6f2;border:1px solid #cbdace;border-radius:12px">
 <h3>Visualizar os espaços dos cinco grupos</h3>
@@ -140,7 +140,7 @@ async function fetchRecords(){
  if(!response.ok)throw Error(obj.message||'Não foi possível consultar as produções.');
  if(!Array.isArray(obj))throw Error('Resposta inesperada do painel');
  records=obj;
- $('painel').hidden=false;stat('Acesso confirmado. Produções atualizadas às '+new Date().toLocaleTimeString('pt-BR')+'.');
+ $('painel').hidden=false;$('entrada').style.display='none';if($('lembrar').checked)localStorage.setItem('cenpec26_admin_lembrado',adminKey);stat('Acesso confirmado. Produções atualizadas às '+new Date().toLocaleTimeString('pt-BR')+'.');
  render();
  }finally{refreshing=false}
 }
@@ -189,6 +189,7 @@ async function enter(){
 }
 $('entrar').addEventListener('click',enter);
 $('esquecer').addEventListener('click',()=>{localStorage.removeItem('cenpec26_admin_lembrado');sessionStorage.removeItem('cenpec26_admin');adminKey='';$('lembrar').checked=false;$('painel').hidden=true;stat('Acesso salvo apagado deste navegador.');});
+$('sairAcesso').addEventListener('click',()=>{$('esquecer').click();$('entrada').style.display='';$('senhaAdmin').value='';});
 $('senhaAdmin').addEventListener('keydown',e=>{if(e.key==='Enter')enter()});
 $('refresh').addEventListener('click',async()=>{try{await fetchRecords()}catch(e){info('Falha ao atualizar: '+e.message)}});setInterval(()=>{if(adminKey&&!document.hidden&&document.getElementById('centralPanel').style.display!=='none')fetchRecords().catch(e=>info('Atualização automática indisponível: '+e.message))},15000);
 $('json').addEventListener('click',()=>{let rec=records.find(r=>Number(r.grupo)===current);if(!rec||!rec.dados)return;saveFile(new Blob([JSON.stringify(rec,null,2)],{type:'application/json'}),'cenpec-2026-grupo-'+current+'.json')});
@@ -203,7 +204,7 @@ if(keyFromUrl&&keyFromUrl.length>=24){try{sessionStorage.setItem('cenpec26_admin
 const remembered=localStorage.getItem('cenpec26_admin_lembrado');
 if(remembered)$('lembrar').checked=true;
 const sessionKey=sessionStorage.getItem('cenpec26_admin')||remembered;
-if(sessionKey){adminKey=sessionKey;fetchRecords().catch(err=>{stat('Confira sua chave: '+err.message);adminKey='';sessionStorage.removeItem('cenpec26_admin');localStorage.removeItem('cenpec26_admin_lembrado');$('lembrar').checked=false})}
+if(sessionKey){adminKey=sessionKey;fetchRecords().catch(err=>{stat('Confira sua chave: '+err.message);adminKey='';sessionStorage.removeItem('cenpec26_admin');$('entrada').style.display='';$('painel').hidden=true;})}
 })();
 </script><script>
 (function(){
