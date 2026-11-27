@@ -182,7 +182,7 @@ function render(){
  makeDetail(rec,$('detail'));
 }
 async function enter(){
- const value=$('senhaAdmin').value.trim();if(!value){stat('Informe a chave de acesso.');return}
+ const value=adminKey||$('senhaAdmin').value.trim();if(!value){stat('Informe a chave de acesso.');return}
  adminKey=value;$('senhaAdmin').value='';
  try{sessionStorage.setItem('cenpec26_admin',value);await fetchRecords();if($('lembrar').checked)localStorage.setItem('cenpec26_admin_lembrado',value);else localStorage.removeItem('cenpec26_admin_lembrado')}
  catch(e){adminKey='';sessionStorage.removeItem('cenpec26_admin');stat('Não foi possível entrar: '+e.message)}
